@@ -57,7 +57,6 @@ class SplineTool():
             return layer
  
         def enableAction(self):
-            print "enableAction"
             self.action_spline.setEnabled(False)
             layer = self.getLayer()
             if layer:
