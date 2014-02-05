@@ -29,6 +29,7 @@ class SplineTool():
             # Connect to signals for button behaviour
             self.action_spline.triggered.connect(self.digitize)
             self.iface.currentLayerChanged.connect(self.layerChanged)
+            self.layerChanged() # to enable when plugin is loaded
 
             mc.mapToolSet.connect(self.deactivate)
             
@@ -39,6 +40,7 @@ class SplineTool():
             self.tool = Spline(self.iface)
 
         def __del__(self):
+            self.disconnectLayer()
             self.iface.removeToolBarIcon(self.action_spline)
          
         def digitize(self):
