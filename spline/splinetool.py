@@ -18,6 +18,7 @@ class SplineTool():
             self.canvas = self.iface.mapCanvas()
             mc = self.canvas
             self.tool = None
+            self.connectedLayer = None
             
             # Create actions 
             self.action_spline = QAction(QIcon(":/plugins/spline/icon.png"), QCoreApplication.translate("spline", "Digitize Spline Curves"),  self.iface.mainWindow())
@@ -27,7 +28,8 @@ class SplineTool():
             
             # Connect to signals for button behaviour
             self.action_spline.triggered.connect(self.digitize)
-            self.iface.currentLayerChanged.connect(self.toggle)
+            self.iface.currentLayerChanged.connect(self.layerChanged)
+
             mc.mapToolSet.connect(self.deactivate)
             
             # Add actions to the toolbar
@@ -45,36 +47,39 @@ class SplineTool():
             
             mc.setMapTool(self.tool)
             self.action_spline.setChecked(True)    
+           
+        # get current layer if it is line or polygon, otherwise None
+        def getLayer(self):
+            layer = self.canvas.currentLayer()
+            if layer is None: return None
+            if layer.type() != QgsMapLayer.VectorLayer: return None
+            if not layer.geometryType() in [ QGis.Line, QGis.Polygon ]: return None
+            return layer
+ 
+        def enableAction(self):
+            print "enableAction"
+            self.action_spline.setEnabled(False)
+            layer = self.getLayer()
+            if layer:
+                self.action_spline.setEnabled( layer.isEditable() )
                 
-                
-        def toggle(self):
-            mc = self.canvas
-            layer = mc.currentLayer()
+        def layerChanged(self):
+            self.enableAction() 
+            self.disconnectLayer()
+            self.connectLayer( self.getLayer() )
+        
+        def connectLayer(self, layer):
+            if layer is None: return
+            self.connectedLayer = layer
+            layer.editingStopped.connect(self.enableAction)
+            layer.editingStarted.connect(self.enableAction)
+
+        def disconnectLayer(self):
+            if self.connectedLayer is None: return
+            self.connectedLayer.editingStopped.disconnect(self.enableAction)
+            self.connectedLayer.editingStarted.disconnect(self.enableAction)
+            self.connectedLayer = None
             
-            #Decide whether the plugin button/menu is enabled or disabled.
-            if layer <> None:
-                # Only for vector layers.
-                type = layer.type()
-                if type == 0:
-                    gtype = layer.geometryType()
-                    # Doesn't make sense for points.
-                    if gtype <> 0:
-                        if layer.isEditable():
-                            self.action_spline.setEnabled(True)
-                            layer.editingStopped.connect(self.toggle)
-                            try:
-                                layer.editingStarted.disconnect(self.toggle)
-                            except TypeError:
-                                pass
-                        else:
-                            self.action_spline.setEnabled(False)
-                            layer.editingStarted.connect(self.toggle)
-                            try:
-                                layer.editingStopped.disconnect(self.toggle)
-                            except TypeError:
-                                pass
-                
-                
         def deactivate(self):
             self.action_spline.setChecked(False)
 
