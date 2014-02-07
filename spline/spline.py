@@ -33,6 +33,7 @@ class Spline(QgsMapTool):
         QgsMapTool.__init__(self,self.canvas)
         self.rb = QgsRubberBand(self.canvas,  QGis.Polygon)
         self.points = [] # digitized, not yet interpolated points
+        self.type = None # layer geometry type
 
         self.cursor = QCursor(QPixmap(["16 16 3 1",
                                       "      c None",
@@ -174,16 +175,15 @@ class Spline(QgsMapTool):
 
     def refresh(self):
         # redraw, called when settings changed
-        points = self.interpolate ( self.points )
-        self.setRubberBandPoints(points ) 
+        if self.points:
+            points = self.interpolate ( self.points )
+            self.setRubberBandPoints(points ) 
     
     def canvasReleaseEvent(self,event):
         pass 
 
-
     def showSettingsWarning(self):
         pass
-
 
     def activate(self):
         ## Set our new cursor.
@@ -208,7 +208,7 @@ class Spline(QgsMapTool):
 
     def deactivate(self):
         self.rb.reset(QGis.Polygon)
-        self.count = 0
+        self.points = []
         pass
 
     def isZoomTool(self):
