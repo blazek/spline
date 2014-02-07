@@ -33,7 +33,7 @@ class Spline(QgsMapTool):
         QgsMapTool.__init__(self,self.canvas)
         self.rb = QgsRubberBand(self.canvas,  QGis.Polygon)
         self.points = [] # digitized, not yet interpolated points
-        self.type = None # layer geometry type
+        self.type = QGis.Polygon # layer geometry type
 
         self.cursor = QCursor(QPixmap(["16 16 3 1",
                                       "      c None",
