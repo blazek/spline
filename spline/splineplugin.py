@@ -72,8 +72,11 @@ class SplinePlugin:
         pass
 
     def openSettings(self):
-        settings = SettingsDialog(self.iface.mainWindow())
-        settings.changed.connect( self.spline.settingsChanged )
-        settings.show()
+        # button signals in SettingsDialog were not working on Win7/64
+        # if SettingsDialog was created with iface.mainWindow() as parent
+        #self.settingsDialog = SettingsDialog(self.iface.mainWindow())
+        self.settingsDialog = SettingsDialog()
+        self.settingsDialog.changed.connect( self.spline.settingsChanged )
+        self.settingsDialog.show()
         
 

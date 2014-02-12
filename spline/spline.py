@@ -57,8 +57,7 @@ class Spline(QgsMapTool):
                                       "    ++.....+    ",
                                       "      ++.++     ",
                                       "       +.+      "]))
-                                  
- 
+
     def canvasPressEvent(self,event):
         color = QColor(255,0,0,100)
         self.rb.setColor(color)
@@ -204,10 +203,18 @@ class Spline(QgsMapTool):
         self.resetRubberBand()
         for point in points:
             update = point is points[-1]
+            # There was reported error on Win7/32, on self.rb.addPoint()
+            # it was giving "RuntimeError: underlying C/C++ object has been deleted"
+            # The ownership of QgsRubberBand is passed to QgsMapCanvas (and QgsGraphicsScene)
+            # but they should not delete it until QgsMapCanvas is destructed.
             self.rb.addPoint( point, update )
 
     def deactivate(self):
-        self.rb.reset(QGis.Polygon)
+        # On Win7/64 it was failing if QGIS was closed with a layer opened
+        # for editing with "'NoneType' object has no attribute 'Polygon'"
+        # -> test QGis
+        if QGis is not None:
+            self.rb.reset(QGis.Polygon)
         self.points = []
         pass
 
