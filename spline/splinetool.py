@@ -26,6 +26,9 @@ class SplineTool():
             self.action_spline.setEnabled(False)
             self.action_spline.setCheckable(True)            
             
+            # Get the tool
+            self.tool = Spline(self.iface)
+
             # Connect to signals for button behaviour
             self.action_spline.triggered.connect(self.digitize)
             self.iface.currentLayerChanged.connect(self.layerChanged)
@@ -36,9 +39,6 @@ class SplineTool():
             # Add actions to the toolbar
             self.iface.addToolBarIcon(self.action_spline)
                         
-            # Get the tool
-            self.tool = Spline(self.iface)
-
         def __del__(self):
             self.disconnectLayer()
             self.iface.removeToolBarIcon(self.action_spline)
@@ -65,6 +65,7 @@ class SplineTool():
                 self.action_spline.setEnabled( layer.isEditable() )
                 
         def layerChanged(self):
+            self.tool.deactivate()
             self.enableAction() 
             self.disconnectLayer()
             self.connectLayer( self.getLayer() )
