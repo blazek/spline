@@ -75,11 +75,11 @@ class Spline(QgsMapTool):
             
             (retval,result) = snapper.snapToCurrentLayer (startingPoint, QgsSnapper.SnapToVertex)   
             if result <> []:
-                point = result[0].snappedVertex
+                point = QgsPoint( result[0].snappedVertex )
             else:
                 (retval,result) = snapper.snapToBackgroundLayers(startingPoint)
                 if result <> []:
-                    point = result[0].snappedVertex
+                    point = QgsPoint( result[0].snappedVertex )
                 else:
                     point = self.canvas.getCoordinateTransform().toMapCoordinates( event.pos().x(), event.pos().y() );
             
@@ -159,11 +159,11 @@ class Spline(QgsMapTool):
         ## at last we do not snap.
         (retval,result) = snapper.snapToCurrentLayer (startingPoint,QgsSnapper.SnapToVertex)   
         if result <> []:
-            point = result[0].snappedVertex
+            point = QgsPoint( result[0].snappedVertex )
         else:
             (retval,result) = snapper.snapToBackgroundLayers(startingPoint)
             if result <> []:
-                point = result[0].snappedVertex
+                point = QgsPoint( result[0].snappedVertex )
             else:
                 point = self.canvas.getCoordinateTransform().toMapCoordinates( event.pos().x(), event.pos().y() );
             
@@ -203,10 +203,6 @@ class Spline(QgsMapTool):
         self.resetRubberBand()
         for point in points:
             update = point is points[-1]
-            # There was reported error on Win7/32, on self.rb.addPoint()
-            # it was giving "RuntimeError: underlying C/C++ object has been deleted"
-            # The ownership of QgsRubberBand is passed to QgsMapCanvas (and QgsGraphicsScene)
-            # but they should not delete it until QgsMapCanvas is destructed.
             self.rb.addPoint( point, update )
 
     def deactivate(self):
