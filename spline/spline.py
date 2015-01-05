@@ -144,7 +144,8 @@ class Spline(QgsMapTool):
             if QGis.QGIS_VERSION_INT >= 20400: 
                 dlg.setIsAddDialog( True ) # new in 2.4, without calling that the dialog is disabled
             if dlg.exec_():
-                layer.addFeature(f)
+                if QGis.QGIS_VERSION_INT < 20400: 
+                    layer.addFeature(f)
                 layer.endEditCommand()
             else:
                 layer.destroyEditCommand()
